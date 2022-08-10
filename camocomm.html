@@ -184,6 +184,13 @@
 					DayOfWeek   : 0x4
 				};                    
 			}(document));
+
+			const OFFSET = {
+				none     : 0x0,
+				wordPos     : 0x1,
+				charPos     : 0x2,
+				dayOfWeek   : 0x4
+			}
 		
 			var WORDTOKEN = (function(d){
 				const splitLines = str => str.split(/\r?\n/).filter(element => element);
@@ -619,6 +626,18 @@
 				
 			}
 
+			function copyEncoded(evt){
+			
+				var tocopy = document.getElementById("output");
+				/* Select the text field */
+				tocopy.select();
+				tocopy.setSelectionRange(0, 99999); /* For mobile devices */			  
+				 /* Copy the text inside the text field */
+				navigator.clipboard.writeText(tocopy.value);
+				tocopy.removeAllRanges();
+				alert("Copied the text: " + tocopy.value);
+			}
+
 			function tabSelect(evt, tabName){
 				var i, x, tablinks;
 				x = document.getElementsByClassName("tabname");
@@ -691,7 +710,9 @@
             <textarea id="input" class="m2c-textarea" rows="25" cols="87"></textarea>
         </div>
         <div id="Encode" class="m2c-container tabname" style="display:none">
-            <h2>Encoded</h2>
+            <h2>
+				<button class="m2c-bar-item m2c-button" onclick="copyEncoded(event)">Encoded</button>
+			</h2>
 
             <textarea id="output" class="m2c-textarea" rows="25" cols="87"></textarea>
         </div>
