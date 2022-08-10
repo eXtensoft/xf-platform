@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Camocomm</title>
+        <style>
+			html {
+				box-sizing: border-box;
+				color: #c2b280 !important;
+				background-color: #786d5f;
+			}
+			
+			body {
+				margin: 20;
+			}
+			
+			textarea, input {
+				background-color: #c2b280 !important;	
+			}
+			
+			.m2c-sidebar {
+				height: 600px;
+				width: 300px;
+				background-color: #fff;
+				position: fixed !important;
+				z-index: 1;
+				overflow: none;
+			}
+			
+			.m2c-container {
+				padding: 0.01em 16px
+			}
+			
+			.m2c-bar-block .m2c-bar-item {
+				width: 100%;
+				display: block;
+				padding: 12px 16px;
+				text-align: left;
+				border: none;
+				white-space: normal;
+				float: none;
+				outline: 0
+			}
+			
+			.m2c-bar .m2c-button {
+				white-space: normal
+			}
+			
+			.m2c-button:hover {
+				color: #000 !important;
+				background-color: #ccc !important
+			}
+			
+			.m2c-button {
+				border: none;
+				display: inline-block;
+				padding: 8px 16px;
+				vertical-align: middle;
+				overflow: hidden;
+				text-decoration: none;
+				color: inherit;
+				background-color: inherit;
+				text-align: center;
+				cursor: pointer;
+				white-space: nowrap
+			}
+			
+			.m2c-button:disabled {
+				cursor: not-allowed;
+				opacity: 0.3
+			}
+			
+			.m2c-bar .m2c-button {
+				white-space: normal
+			}
+			
+			.m2c-button:hover {
+				color: #000 !important;
+				background-color: #ccc !important
+			}
+			
+			.m2c-go-army,
+			.m2c-hover-go-army:hover {
+				color: #fff !important;
+				background-color: #4b5320 !important
+			}
+			
+			.m2c-go-army-green-light,
+			.m2c-hover-go-army-green-light:hover {
+				color: #fff !important;
+				background-color: #626649 !important
+			}
+			
+			.m2c-go-army-sand,
+			.m2c-hover-go-army-sand:hover {
+				color: #c2b280 !important;
+				background-color: #786d5f;
+			}
+			
+			.m2c-go-army-button {
+				background-color: #c2b280;
+				border-color: black;
+				color: #786d5f;
+			}
+			
+			.m2c-go-army-button:hover {
+				background-color: #fae6aa;
+				border-color: #fae6aa;
+			}
+			
+			.m2c-button:hover {
+				color: #000 !important;
+				background-color: #c2b280 !important
+			}
+			
+		</style>
+		<script>
+			var MODULE = (function(d){
+				var my = {};
+			}(document));
+		
+		
+			function tabSelect(evt, tabName){
+				var i, x, tablinks;
+				x = document.getElementByClassName("city");
+				for(i=0; i < x.length; i++){
+					x[i].style.display = "none";
+				}
+				tablinks = document.getElementsByClassName("tablink");
+				for(i=0; i < x.length; i++){
+					tablinks[i].className = tablinks[i].className.replace(" w3-selected", "");
+				}
+				document.getElementById(tabName).style.display = "block";
+				evt.currentTarget.className += " w3-selected";
+			}
+		
+		
+			var DOM = (function(d){
+				var my = {};
+				my.removeClass = function(elementId,classname){
+					const element = document.querySelector(element);
+					if(element){
+						element.classList.remove(className);
+					}
+				}
+				my.addClass = function(elementId,className){
+					if(element){
+						element.classList.add(className);
+					}
+				}
+				my.clearOptions = function(ddl){
+					for( i = ddl.length -1; i >= 0; i--)
+					{
+						ddl.remove(i);
+					}
+				}
+				my.opt = function(text,val){
+					var option = d.createElement("option");
+					option.text = text;
+					option.value = val;
+					return option;
+				}
+				my.populate = function(ddl,val,text){
+					ddl.options.add(my.opt(val,text));
+				}
+				my.tryParseInt = function(candidate){
+					if(candidate){
+						return parseInt(candidate.value);
+					} else {
+						return 0;
+					}
+				}
+				my.setDdl = function(ddl,val){
+					d.querySelector(ddl).value = val;
+				}
+				return my;
+			}(document));
+		
+			var SETTINGS = (function(d){
+				const OFFSET = {
+					none     : 0x0,
+					wordPos     : 0x1,
+					charPos     : 0x2,
+					DayOfWeek   : 0x4
+				};                    
+			}(document));
+		
+			var WORDTOKEN = (function(d){
+				const splitLines = str => str.split(/\r?\n/).filter(element => element);
+				//const splitLines = str => str.split(/\r?\n/g);
+				var my = {};
+				my.parse = function(text){
+					let wordtokens = [];
+					// split lines
+					let lines = splitLines(text);
+					// split words
+					let pos = 0;
+					let linenbr = 0;
+					lines.forEach(line =>{
+						linenbr++;
+						// tokens = .split(/\r?\n/).filter(element => element);
+						let tokens = line.match(/\S+/g);
+						tokens.forEach(token =>{
+							pos++;
+							wordtokens.push({
+								lineNumber: linenbr,
+								position: pos,
+								value: token
+							});
+						});
+					});
+					return wordtokens;
+				};
+		
+				my.splitMessage = function(text){
+					//const splitLines = str => str.split(/\r?\n/).filter(element => element);
+					let lines = splitLines(text);
+					let message = {
+						isOkay: false
+					}
+					if(lines.length > 0){
+						let dte = new Date();
+						let str = dte.toISOString();
+						let header = lines.splice(0,1);
+						message.text = lines.join('\n');
+						let headerinfo = header[0].split(' ');
+						if(headerinfo.length == 3){
+							let opts = parseInt(headerinfo[1]);
+							let datewithtimezone = headerinfo[0] + "T12:00:00.000Z";
+							message.date = new Date(datewithtimezone);
+							let dayofweek = message.date.getDay() + 1;
+							message.options = opts / dayofweek;
+							message.offset = parseInt(headerinfo[2]);
+							message.isOkay = true;
+						}
+					}
+					return message;
+				}
+		
+				my.resolveOffset = function(index, displacement, bounds, isReverse){
+					newindex = index;
+					j = 0;
+					if (isReverse){
+						j = index - displacement;
+						if (j >= 0){
+							newindex = j;
+						} else {
+							while(j < 0){
+								j = j + bounds;
+							}
+							newindex = j;
+						}
+					} else {
+						j = index + displacement;
+						if (j < bounds){
+							newindex = j;
+						} else if (j == bounds)
+						{
+							newindex = 0;
+						} else if (j > bounds){
+							newindex = j % bounds;
+						}
+					}
+					return newindex;
+				}
+				return my;
+			}(document));
+		
+			var ENGINE = (function(d){
+				var my = {};
+				var maps = new Map();
+				var lookups = new Map();
+				var groups = [];
+				let groupsettings = [];
+				var maps = new Map();
+				const range = (start,stop,step) => Array.from({length: (stop - start) / step + 1},(_,i)=> start + (i*step));
+		
+				const buildGroup = (start,stop,name) => {
+					let list = range(start,stop,1);
+					let group = {
+						start : start,
+						stop : stop,
+						name : name,
+						slots : []
+					}
+					let j = 0;
+					list.forEach(x => {
+						group.slots.push({
+							index : j++,
+							ascii : x,
+							value : String.fromCharCode(x),
+							groupName : name
+						})
+					});
+					return group;
+				};
+				
+				my.initialize = function(){
+					let j = 0;
+					let min = 33;
+					let max = 126;
+					for(i = min; i <= max; i++){
+						var m = {
+							index : j,
+							char : String.fromCharCode(i),
+							code : i
+						}
+						maps.set(String.fromCharCode(i),m);
+						lookups.set(i,m);
+						j++;
+					}
+					// 33-47 !"#$%&'()*+,=./    15
+					// 48-87 0123456789         10
+					// 58-64 :;<=>?@             7
+					// 65-90 A-Z                26
+					// 91-96 [\]^_`              6
+					// 97-122 a-z               26
+					// 123-126 {|}~              4
+		
+					groupsettings.push({
+						start : 33,
+						stop : 47,
+						name : "special-punctuation"
+					});
+					groupsettings.push({
+						start : 48,
+						stop : 57,
+						name : 'numbers'
+					});
+					groupsettings.push({
+						start : 58,
+						stop : 64,
+						name : 'special-html'
+					});
+					groupsettings.push({
+						start : 65,
+						stop : 90,
+						name : 'A-Z'
+					});
+					groupsettings.push({
+						start : 91,
+						stop : 96,
+						name : 'special-x'
+					});
+					groupsettings.push({
+						start : 97,
+						stop : 122,
+						name : 'a-z'
+					});
+					groupsettings.push({
+						start : 123,
+						stop : 126,
+						name : 'special-y'
+					});
+					groupsettings.forEach(grp =>{
+						let g = buildGroup(grp.start,grp.stop,grp.name);
+						groups.push(g);
+					});
+				};
+		
+				my.executeOffset = function(settings){
+					let usewordposition = (settings.options & OFFSET.wordPos) ? true : false;
+					let usecharposition = (settings.options & OFFSET.charPos) ? true : false;
+					let usedate = (settings.options & OFFSET.dayOfWeek) ? true : false;
+					let tokens = WORDTOKEN.parse(settings.text);
+					let outputbuilder = [];
+					if(!settings.isReverse){
+						let dayofweek = settings.date.getDay() + 1;
+						let iso = settings.date.toISOString().substring(0,10);
+						let opts = dayofweek * settings.options;
+						let header = iso + " " + opts + " " + settings.offset;
+						outputbuilder.push(header);
+					} else {
+						
+					}
+					
+					let linebuilder = [];
+					let linenumber = tokens[0].lineNumber;
+					let datefactor = settings.date.getMonth() * settings.date.getMonth();
+					tokens.forEach(token =>{
+						let tokenposition = token.position > 0 ? token.position : 1;
+						let wordbuilder = [];
+						let word = token.value;
+						let max = word.length;
+						for(k = 0; k < max; k++){
+							let pos = k + 1;
+							let x = word.charCodeAt(k);
+							let grp = groups.find(el=> el.start <= x && el.stop >= x );
+							if(grp !== undefined){
+		
+								let slot = grp.slots.find(el => el.ascii == x);
+								if(slot !== undefined){
+									let index = slot.index;
+									let displacement = settings.offset;
+									if(usewordposition){
+										displacement = (displacement > 0 ) ? displacement * token.position : token.position;
+									}
+									if(usecharposition){
+										displacement = (displacement > 0) ? displacement * pos : pos;
+									}
+									if(usedate){
+										displacement += datefactor;
+									}
+									let newindex = WORDTOKEN.resolveOffset(index, displacement, grp.slots.length, settings.isReverse);
+									let offset = grp.slots[newindex];
+									wordbuilder.push(String.fromCharCode(offset.ascii));
+								}
+							}
+						}
+						if(settings.isPreserveLines){
+							if(token.lineNumber > linenumber){
+								outputbuilder.push(linebuilder.join(' '));
+								linebuilder = [];
+								linenumber = token.lineNumber;
+							}
+							linebuilder.push(wordbuilder.join(''));
+						} else {
+							outputbuilder.push(wordbuilder.join(''));
+						}
+					});
+					if(settings.isPreserveLines && 
+						linebuilder.length > 0){
+						outputbuilder.push(linebuilder.join(' '));
+					}
+					return outputbuilder.join('\n');
+				};
+		
+				my.resolveOffset = function(index, displacement, bounds, isReverse){
+					newindex = index;
+					j = 0;
+					if (isReverse){
+						j = index - displacement;
+						if (j >= 0){
+							newindex = j;
+						} else {
+							while(j < 0){
+								j = j + bounds;
+							}
+							newindex = j;
+						}
+					} else {
+						j = index + displacement;
+						if (j < bounds){
+							newindex = j;
+						} else if (j == bounds)
+						{
+							newindex = 0;
+						} else if (j > bounds){
+							newindex = j % bounds;
+						}
+					}
+					return newindex;
+				}
+		
+				my.getMaps = function(){
+					let arr = [];
+					maps.forEach(element=>{
+						arr.push(element.char + ': ' + element.code);
+					});
+					return arr.join('\r');
+				}
+				
+				return my;
+		
+			}(document));
+		
+		
+		
+			var ui_maps = [
+				//{'key':'ddl-offset', 'selector': '#offset'},
+				{'key':'txb-input', 'selector': '#input'},
+				{'key':'txb-output', 'selector': '#output'},
+				{'key':'txb-reverse','selector':'#reverse'},
+				{'key':'chk-word-pos', 'selector': '#word-pos'},
+				{'key':'chk-char-pos', 'selector': '#char-pos'},
+				{'key':'txb-maps', 'selector': '#maps'},
+				{'key':'txb-offset', 'selector':'#offset'},
+				{'key':'chk-day-of-week', 'selector':'#day-of-week'},
+			]
+		
+			var UI = (function(d){
+				var my = {};
+				var map = new Map();
+		
+				my.set = function(key,selector){
+					map.set(key,selector);
+				}
+				my.get = function(key){
+					return map.get(key);
+				}
+				my.load = function(){
+					var maps = ui_maps;
+					for(var i = 0; i < maps.length; i++){
+						let m = maps[i];
+						map.set(m.key,m.selector);
+					}
+					// console.log('map-size: ' + map.size);
+				}
+				my.ddl = function(selector){
+					return d.querySelector(map.get(selector));
+				}
+				my.ddl_selected = function(selector){
+					return d.querySelector(map.get(selector) + ' option:checked');
+				}
+				my.ddl_selected_value = function(selector){
+					return this.ddl_selected(selector).value;
+				}
+				
+				my.ddl_selected_value_int = function(selector){
+					return parseInt(this.ddl_selected_value(selector));
+				}
+				my.txb_value = function(selector){
+					return d.querySelector(map.get(selector)).value;
+				}
+				my.txb_value_int = function(selector){
+					return parseInt(this.txb_value(selector));
+				}
+				my.txb_set = function(selector,val){
+					d.querySelector(map.get(selector)).value = val;
+				}
+				my.ddl_set = function(selector,val){
+					d.querySelector(map.get(selector)).value = val;
+				}
+				my.checked = function(selector){
+					return d.querySelector(map.get(selector)).checked;
+				}
+		
+				return my;
+			}(document));                
+		
+		</script>
+
+        <script>
+		
+			document.addEventListener("DOMContentLoaded",function(){
+				initialize();
+				document.querySelector('#execute-offset').onclick = function(){
+					executeOffset();
+				};
+				document.querySelector('#execute-offset-reverse').onclick = function(){
+					executeReverseOffset();
+				};
+			});
+		
+			function initialize(){
+				ENGINE.initialize();
+				UI.load();
+				UI.txb_set('txb-maps',ENGINE.getMaps());
+			}
+
+			function getOffset(){
+				let flags = OFFSET.none;
+				if(UI.checked('chk-char-pos')){
+					flags ^= OFFSET.charPos;
+				}
+				if(UI.checked('chk-word-pos')){
+					flags ^= OFFSET.wordPos;
+				};
+				if(UI.checked('chk-day-of-week')){
+					flags ^= OFFSET.dayOfWeek;
+				}
+				return flags;				
+			}
+
+			function getSettings(){
+				let flags = this.getOffset();
+				let settings = {
+					isPreserveLines: true,
+					passPhrase: 'pass-phrase',
+					offset: UI.txb_value_int('txb-offset'),
+					date: new Date(),
+					options: flags
+				};
+				return settings;				
+			}
+
+			function getInputSettings(){
+				let settings = this.getSettings();
+				settings.text = UI.txb_value('txb-input');
+				settings.isReverse = false;
+				return settings;
+			}
+
+			function getOutputSettings(){
+				let settings = this.getSettings();
+				let text = UI.txb_value('txb-output');
+				let message = WORDTOKEN.splitMessage(text);
+				if(message.isOkay){
+					settings.text = message.text;
+					settings.date = message.date;
+					settings.options = message.options;
+					settings.offset = message.offset;
+					settings.isReverse = true;
+					settings.isOkay = true;					
+				} else {
+					settings.isOkay = false;
+				}
+
+				return settings;
+			}
+		
+			function executeOffset()
+			{
+				let settings = this.getInputSettings();
+				let x = ENGINE.executeOffset(settings);
+				UI.txb_set('txb-output',x);
+			}
+
+			function executeReverseOffset()
+			{
+				let settings = this.getOutputSettings();
+				if(settings.isOkay){
+					let x = ENGINE.executeOffset(settings);
+					UI.txb_set('txb-reverse',x);					
+				} else {
+					alert('Could not parse settings.')
+				}
+
+				
+			}
+
+			function tabSelect(evt, tabName){
+				var i, x, tablinks;
+				x = document.getElementsByClassName("tabname");
+				for(i=0; i < x.length; i++){
+					x[i].style.display = "none";
+				}
+				tablinks = document.getElementsByClassName("tablink");
+				for(i=0; i < x.length; i++){
+					tablinks[i].className = tablinks[i].className.replace(" m2c-go-army", "");
+				}
+				
+				document.getElementById(tabName).style.display = "block";
+				evt.currentTarget.className += " m2c-go-army";
+			}
+			function onTabSelect(evt, tabName){
+				this.tabSelect(tabName);
+				evt.currentTarget.className += " m2c-go-army";
+			}				
+		</script>
+
+
+    </head>
+
+    <div class="m2c-go-army-green-light m2c-sidebar m2c-bar-block  m2c-card" style="width: 130px;" >
+        <h5 class="m2c-bar-item">Camocomm</h5>
+        <button class="m2c-bar-item m2c-button tablink" onclick="tabSelect(event, 'Message')">Message</button>
+        <button class="m2c-bar-item m2c-button tablink" onclick="tabSelect(event, 'Encode')">Encoded</button>
+        <button class="m2c-bar-item m2c-button tablink" onclick="tabSelect(event, 'Decode')">Decoded</button>
+        <button class="m2c-bar-item m2c-button tablink" onclick="tabSelect(event, 'Ascii')">Ascii</button>
+    </div>
+    <div style="margin-left: 130px;">
+        <div class="m2c-container">
+			<h3>Message Encoder</h3>
+			<table>
+				<tr>
+					<td>
+						<fieldset>
+							<legend>Algorithm</legend>
+							<input id="char-pos" type="checkbox" checked="checked"/>
+							<label for="char-pos">Character Position</label>
+							<input id="word-pos" type="checkbox" checked="checked"/>
+							<label for="word-pos">Word Position</label>
+							<input id="day-of-week" type="checkbox" checked="checked"/>
+							<label for="day-of-week">Date</label>
+						</fieldset>						
+					</td>
+					<td>
+						<fieldset>
+							<legend>Execute</legend>
+							<input id="offset" type="number" style="width: 5em;" value="2"/>
+							<label for="offset">Offset</label>					
+						</fieldset>						
+					</td>
+					<td>
+						<fieldset>
+							<legend>Execute</legend>
+							<button id="execute-offset" class="m2c-go-army-button">Encode</button>
+							<button id="execute-offset-reverse" class="m2c-go-army-button">Decode</button> 					
+						</fieldset>							
+					</td>
+				</tr>
+			</table>
+
+                          
+        </div>
+
+        <div id="Message" class="m2c-container tabname" style="display:none">
+            <h2>Message</h2>
+
+            <textarea id="input" class="m2c-textarea" rows="25" cols="87"></textarea>
+        </div>
+        <div id="Encode" class="m2c-container tabname" style="display:none">
+            <h2>Encoded</h2>
+
+            <textarea id="output" class="m2c-textarea" rows="25" cols="87"></textarea>
+        </div>
+        <div id="Decode" class="m2c-container tabname" style="display:none">
+            <h2>Decoded</h2>
+            <textarea id="reverse" class="m2c-textarea" rows="25" cols="87"></textarea>
+        </div>
+        <div id="Ascii" class="m2c-container tabname" style="display:none">
+            <h2>Ascii</h2>
+            <textarea id="maps" class="m2c-textarea" rows="25" cols="87" ></textarea>
+        </div>
+
+    </div>
+
+</html>
