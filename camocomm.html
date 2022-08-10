@@ -677,9 +677,9 @@
 						<fieldset>
 							<legend>Algorithm</legend>
 							<input id="char-pos" type="checkbox" checked="checked"/>
-							<label for="char-pos">Character Position</label>
+							<label for="char-pos">Character</label>
 							<input id="word-pos" type="checkbox" checked="checked"/>
-							<label for="word-pos">Word Position</label>
+							<label for="word-pos">Word</label>
 							<input id="day-of-week" type="checkbox" checked="checked"/>
 							<label for="day-of-week">Date</label>
 						</fieldset>						
@@ -695,7 +695,8 @@
 						<fieldset>
 							<legend>Execute</legend>
 							<button id="execute-offset" class="m2c-go-army-button">Encode</button>
-							<button id="execute-offset-reverse" class="m2c-go-army-button">Decode</button> 					
+							<button id="execute-offset-reverse" class="m2c-go-army-button">Decode</button> 	
+							<button class="m2c-bar-item m2c-button" onclick="copyEncoded(event)">Copy</button>				
 						</fieldset>							
 					</td>
 				</tr>
@@ -707,22 +708,19 @@
         <div id="Message" class="m2c-container tabname" style="display:none">
             <h2>Message</h2>
 
-            <textarea id="input" class="m2c-textarea" rows="25" cols="87"></textarea>
+            <textarea id="input" class="m2c-textarea" rows="25" cols="80"></textarea>
         </div>
         <div id="Encode" class="m2c-container tabname" style="display:none">
-            <h2>
-				<button class="m2c-bar-item m2c-button" onclick="copyEncoded(event)">Encoded</button>
-			</h2>
-
-            <textarea id="output" class="m2c-textarea" rows="25" cols="87"></textarea>
+            <h2>Encoded</h2>
+            <textarea id="output" class="m2c-textarea" rows="25" cols="80"></textarea>
         </div>
         <div id="Decode" class="m2c-container tabname" style="display:none">
             <h2>Decoded</h2>
-            <textarea id="reverse" class="m2c-textarea" rows="25" cols="87"></textarea>
+            <textarea id="reverse" class="m2c-textarea" rows="25" cols="80"></textarea>
         </div>
         <div id="Ascii" class="m2c-container tabname" style="display:none">
             <h2>Ascii</h2>
-            <textarea id="maps" class="m2c-textarea" rows="25" cols="87" ></textarea>
+            <textarea id="maps" class="m2c-textarea" rows="25" cols="80" ></textarea>
         </div>
 
     </div>
